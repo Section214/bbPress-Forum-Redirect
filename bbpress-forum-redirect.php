@@ -14,7 +14,9 @@
 
 
 // Exit if accessed directly
-if( ! defined( 'ABSPATH' ) ) exit;
+if( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 
 if( ! class_exists( 'bbPress_Forum_Redirect' ) ) {
@@ -43,8 +45,8 @@ if( ! class_exists( 'bbPress_Forum_Redirect' ) ) {
 			if( ! isset( self::$instance ) ) {
 				self::$instance = new bbPress_Forum_Redirect;
 				self::$instance->setup_constants();
+				self::$instance->includes();
 				self::$instance->load_textdomain();
-				self::$instance->hooks();
 			}
 
 			return self::$instance;
@@ -71,21 +73,18 @@ if( ! class_exists( 'bbPress_Forum_Redirect' ) ) {
 
 
 		/**
-		 * Run action and filter hooks
+		 * Include reqired files
 		 *
 		 * @access      private
-		 * @since       1.0.0
+		 * @since       1.1.0
 		 * @return      void
 		 */
-		private function hooks() {
-			// Add metabox to forum post type
-			add_action( 'add_meta_boxes', array( $this, 'add_redirect_metabox' ) );
+		private function includes() {
+			require_once BBPRESS_FORUM_REDIRECT_DIR . 'includes/filters.php';
 
-			// Save metabox
-			add_action( 'save_post', array( $this, 'save_redirect_metabox' ) );
-
-			// Override forum permalinks
-			add_filter( 'bbp_get_forum_permalink', array( $this, 'override_forum_permalink' ), null, 2 );
+			if( is_admin() ) {
+				require_once BBPRESS_FORUM_REDIRECT_DIR . 'includes/admin/meta-boxes.php';
+			}
 		}
 
 
@@ -118,93 +117,6 @@ if( ! class_exists( 'bbPress_Forum_Redirect' ) ) {
 				load_plugin_textdomain( 'bbpress-forum-redirect', false, $lang_dir );
 			}
 		}
-
-
-        /**
-         * Add metabox to forum post type
-         *
-         * @access      public
-         * @since       1.0.0
-         * @return      void
-         */
-        public function add_redirect_metabox() {
-            // Nice and simple...
-            add_meta_box( 'bbpress-forum-redirect', __( 'Forum Redirect', 'bbpress-forum-redirect' ), array( $this, 'display_redirect_metabox' ), 'forum', 'normal', 'high' );
-        }
-
-
-        /**
-         * Display redirect metabox
-         *
-         * @access      public
-         * @since       1.0.0
-         * @param       array $post
-         * @return      void
-         */
-        public function display_redirect_metabox( $post ) {
-            $meta = get_post_custom( $post->ID );
-
-            // Update old meta data
-            if( isset( $meta['bbp-redirect'] ) && !isset( $meta['bbpress-forum-redirect'] ) ) {
-                $meta['bbpress-forum-redirect'] = $meta['bbp-redirect'];
-            }
-
-            $redirect = isset( $meta['bbpress-forum-redirect'] ) ? esc_attr( $meta['bbpress-forum-redirect'][0] ) : '';
-
-            wp_nonce_field( basename( __FILE__ ), 'bbpress_forum_redirect_metabox_nonce' );
-
-            echo '<p>' . __( 'Enter a URL to forward this forum to.', 'bbpress-forum-redirect' ) . '</p>';
-            echo '<p><input type="text" name="bbpress-forum-redirect" id="bbpress-forum-redirect" value="' . $redirect . '" style="width: 50% !important;" /></p>';
-        }
-
-
-        /**
-         * Save redirect metabox
-         *
-         * @access      public
-         * @since       1.0.0
-         * @param       int $post_id The ID of this post
-         * @global      object $post The post we are saving
-         * @return      void
-         */
-        public function save_redirect_metabox( $post_id ) {
-            global $post;
-
-            // Don't process if nonce can't be validated
-            if( !isset( $_POST['bbpress_forum_redirect_metabox_nonce'] ) || !wp_verify_nonce( $_POST['bbpress_forum_redirect_metabox_nonce'], basename( __FILE__ ) ) ) return $post_id;
-
-            // Don't process if this is an autosave
-            if( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || isset( $_REQUEST['bulk_edit'] ) ) return $post_id;
-
-            // Don't process if this is a revision
-            if( isset( $post->post_type ) && $post->post_type == 'revision' ) return $post_id;
-
-            // Save new redirect, if set
-            if( isset( $_POST['bbpress-forum-redirect'] ) ) {
-                update_post_meta( $post_id, 'bbpress-forum-redirect', $_POST['bbpress-forum-redirect'] );
-            } else {
-                delete_post_meta( $post_id, 'bbpress-forum-redirect' );
-            }
-        }
-
-
-        /**
-         * Override forum permalink for redirects
-         *
-         * @access      public
-         * @since       1.0.0
-         * @param       string $forum_permalink
-         * @param       int $forum_id
-         * @return      string
-         */
-        public function override_forum_permalink( $forum_permalink, $forum_id ) {
-            $meta = get_post_custom( $forum_id );
-
-            if( !isset( $meta['bbpress-forum-redirect'] ) || empty( $meta['bbpress-forum-redirect'][0] ) )
-                return $forum_permalink;
-
-            return esc_attr( $meta['bbpress-forum-redirect'][0] );
-        }
     }
 }
 
@@ -226,7 +138,7 @@ function bbpress_forum_redirect() {
 		return bbPress_Forum_Redirect::instance();
 	}
 }
-add_action( 'plugins_loaded', 'bbpress_forum_redirect_load' );
+add_action( 'plugins_loaded', 'bbpress_forum_redirect' );
 
 
 /**
