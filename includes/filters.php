@@ -32,3 +32,24 @@ function bbpress_forum_redirect_override_permalink( $permalink, $post_id ) {
 }
 add_filter( 'bbp_get_forum_permalink', 'bbpress_forum_redirect_override_permalink', 10, 2 );
 add_filter( 'bbp_get_topic_permalink', 'bbpress_forum_redirect_override_permalink', 10, 2 );
+
+
+/**
+ * Override template redirect on forum/topic direct access
+ *
+ * @since       1.1.0
+ * @return      void
+ */
+function bbpress_forum_redirect_template_redirect() {
+	global $post;
+
+	if( bbp_is_forum( $post->ID ) || bbp_is_topic( $post->ID ) ) {
+		$redirect = get_post_meta( $post->ID, 'bbpress-forum-redirect', true );
+
+		if( $redirect ) {
+			wp_redirect( esc_url( $redirect ) );
+			die();
+		}
+	}
+}
+add_action( 'template_redirect', 'bbpress_forum_redirect_template_redirect' );
