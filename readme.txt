@@ -2,7 +2,7 @@
 Tags: bbPress, BuddyPress, forum, forums, redirect
 Requires at least: 3.0.1
 Tested up to: 3.7.1
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,9 @@ Allows you to override the default behaviour of bbPress forums, linking them to 
 You haven't asked any!
 
 == Changelog ==
+
+= 1.1.1 =
+* Added: Sanity check on topic redirects
 
 = 1.1.0 =
 * Code cleanup

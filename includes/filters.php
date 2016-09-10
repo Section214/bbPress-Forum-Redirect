@@ -43,7 +43,7 @@ add_filter( 'bbp_get_topic_permalink', 'bbpress_forum_redirect_override_permalin
 function bbpress_forum_redirect_template_redirect() {
 	global $post;
 
-	if( bbp_is_forum( $post->ID ) || bbp_is_topic( $post->ID ) ) {
+	if( $post && ( bbp_is_single_forum() || bbp_is_single_topic() ) ) {
 		$redirect = get_post_meta( $post->ID, 'bbpress-forum-redirect', true );
 
 		if( $redirect ) {

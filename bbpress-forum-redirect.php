@@ -5,7 +5,7 @@
  * Description:     Allows you to override the default behavior of bbPress forums, linking them to an external site
  * Author:          Daniel J Griffiths
  * Author URI:      http://www.ghost1227.com
- * Version:         1.1.0
+ * Version:         1.1.1
  * Text Domain:     bbpress-forum-redirect
  *
  * @package         bbPress\ForumRedirect
@@ -62,7 +62,7 @@ if( ! class_exists( 'bbPress_Forum_Redirect' ) ) {
 		 */
 		private function setup_constants() {
 			// Plugin version
-			define( 'BBPRESS_FORUM_REDIRECT_VER', '1.1.0' );
+			define( 'BBPRESS_FORUM_REDIRECT_VER', '1.1.1' );
 
 			// Plugin folder URL
 			define( 'BBPRESS_FORUM_REDIRECT_URL', plugin_dir_url( __FILE__ ) );
